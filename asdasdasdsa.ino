@@ -16,7 +16,8 @@ byte segmentPins[] = {
 DHT dht(DHTPIN, DHTTYPE);
 
 boolean showTemp = true;
-unsigned long prev_time = 0;
+unsigned long prev_display_time = 0;
+unsigned long prev_face_time = 0;
 
 void setup()
 {
@@ -26,25 +27,24 @@ void setup()
 
 void loop()
 { 
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
-
-  if (millis() - prev_time >= 5000) {
-    prev_time = millis();
+  if (millis() - prev_face_time >= 5000) {
+    prev_face_time = millis();
     showTemp = !showTemp;
   }
 
-  //if (isnan(t)) {
-  if (showTemp) {
-    Multiplex7Seg::loadValue(t);
-  }
-  else {
-    Multiplex7Seg::loadValue(h);
-  }
-  //}
-  //else {
-  //  Multiplex7Seg::loadValue(77);
-  //}
+  //if (isnan(t) || isnan(h)) {
+    if (millis() - prev_display_time >= 2500) {
+      prev_display_time = millis();
 
-  delay(500);
+      float h = dht.readHumidity();
+      float t = dht.readTemperature();
+
+      if (showTemp) {
+        Multiplex7Seg::loadValue(t);
+      }
+      else {
+        Multiplex7Seg::loadValue(h);
+      }
+    }
+  //}
 }
